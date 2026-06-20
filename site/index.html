@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>BF6 Portal Docs</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <header class="app-header">
+      <div>
+        <h1>BF6 Portal Docs</h1>
+        <p>Unofficial community reference, handbook, and tools for BF6 Portal creators.</p>
+      </div>
+      <div class="load-status" id="loadStatus">Loading local data...</div>
+    </header>
+
+    <nav class="tabs" aria-label="Main sections">
+      <button class="tab is-active" data-tab="home">Home</button>
+      <button class="tab" data-tab="handbook">Handbook</button>
+      <button class="tab" data-tab="api">API Reference</button>
+      <button class="tab" data-tab="enums">Selection Lists / Enums</button>
+      <button class="tab" data-tab="templates">Templates</button>
+      <button class="tab" data-tab="bugs">Known Bugs</button>
+      <button class="tab" data-tab="about">About</button>
+    </nav>
+
+    <main>
+      <section class="panel is-active" id="home">
+        <h2>Home</h2>
+        <div class="info-grid">
+          <article>
+            <h3>Handbook</h3>
+            <p>Handbook pages explain concepts.</p>
+          </article>
+          <article>
+            <h3>API Reference</h3>
+            <p>API/reference viewer helps users search and inspect details.</p>
+          </article>
+          <article>
+            <h3>Templates</h3>
+            <p>Templates help users build common logic faster.</p>
+          </article>
+          <article>
+            <h3>Known Bugs</h3>
+            <p>Known bugs and workarounds help the community avoid repeated problems.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel" id="handbook">
+        <h2>Handbook</h2>
+        <p class="muted">Concept pages will be linked here later.</p>
+      </section>
+
+      <section class="panel" id="api">
+        <div class="section-head">
+          <div>
+            <h2>API Reference</h2>
+            <p class="muted" id="apiCount">No API data loaded yet.</p>
+          </div>
+          <input id="apiSearch" type="search" placeholder="Search function name..." autocomplete="off">
+        </div>
+        <div class="split-view">
+          <div class="result-list" id="apiList" aria-label="API function list"></div>
+          <article class="detail-view" id="apiDetail">
+            <p class="muted">Select an API function.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel" id="enums">
+        <div class="section-head">
+          <div>
+            <h2>Selection Lists / Enums</h2>
+            <p class="muted" id="enumCount">No enum data loaded yet.</p>
+          </div>
+          <input id="enumSearch" type="search" placeholder="Search enum or value..." autocomplete="off">
+        </div>
+        <div class="split-view">
+          <div class="result-list" id="enumList" aria-label="Selection list"></div>
+          <article class="detail-view" id="enumDetail">
+            <p class="muted">Select a selection list or enum.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel" id="templates">
+        <h2>Templates</h2>
+        <div class="content-detail-layout">
+          <div class="card-grid" id="templateList"></div>
+          <article class="detail-view" id="templateDetail">
+            <p class="muted">Select a template.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel" id="bugs">
+        <h2>Known Bugs</h2>
+        <div class="content-detail-layout">
+          <div class="card-grid" id="bugList"></div>
+          <article class="detail-view" id="bugDetail">
+            <p class="muted">Select a known bug.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel" id="about">
+        <h2>About</h2>
+        <p>This is an unofficial local MVP for browsing extracted BF6 Portal reference data.</p>
+        <p class="muted">No external scripts, logos, telemetry, or cloud services are used.</p>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>

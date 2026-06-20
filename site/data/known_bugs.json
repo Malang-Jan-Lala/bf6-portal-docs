@@ -1,0 +1,17 @@
+[
+  {
+    "id": "train-movement-static-custom-setup",
+    "title": "Train movement static in custom setup",
+    "status": "needs verification",
+    "summary": "Placeholder bug entry for tracking a possible static train movement issue in custom setups.",
+    "affectedBf6Version": "unknown",
+    "affectedPortalSdkVersion": "unknown",
+    "affectedGodotVersion": "unknown",
+    "tags": ["train", "objective", "godot", "portal-sdk"],
+    "relatedApi": ["GetGolmudTrainLocation"],
+    "relatedTemplates": ["train-moving-objective"],
+    "workaround": "not confirmed yet",
+    "dateObserved": "unknown",
+    "sourceType": "placeholder"
+  }
+]

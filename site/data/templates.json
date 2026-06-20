@@ -1,0 +1,82 @@
+[
+  {
+    "id": "template-kill-mission",
+    "title": "Kill Mission",
+    "status": "planned",
+    "summary": "Placeholder for a common kill-count mission template.",
+    "tags": ["mission", "kills", "score"],
+    "relatedApi": [],
+    "relatedEnums": [],
+    "relatedBugs": []
+  },
+  {
+    "id": "template-capture-zone",
+    "title": "Capture Zone Objective",
+    "status": "planned",
+    "summary": "Placeholder for a capture-zone objective template.",
+    "tags": ["objective", "capture", "zone"],
+    "relatedApi": [],
+    "relatedEnums": [],
+    "relatedBugs": []
+  },
+  {
+    "id": "template-ai-spawn",
+    "title": "AI Spawn Setup",
+    "status": "planned",
+    "summary": "Placeholder for a basic AI spawning setup.",
+    "tags": ["ai", "spawning", "bots"],
+    "relatedApi": ["SpawnAIFromAISpawner"],
+    "relatedEnums": ["SoldierClassItem"],
+    "relatedBugs": []
+  },
+  {
+    "id": "template-deploy-lock",
+    "title": "Deploy Lock / Start Control",
+    "status": "planned",
+    "summary": "Placeholder for deploy locking and round start control.",
+    "tags": ["deploy", "round-flow", "control"],
+    "relatedApi": [],
+    "relatedEnums": [],
+    "relatedBugs": []
+  },
+  {
+    "id": "template-notification",
+    "title": "Notification / UI Message",
+    "status": "planned",
+    "summary": "Placeholder for player feedback, notifications, and UI messages.",
+    "tags": ["ui", "message", "feedback"],
+    "relatedApi": [],
+    "relatedEnums": [],
+    "relatedBugs": []
+  },
+  {
+    "id": "template-music-event",
+    "title": "Music Event",
+    "status": "planned",
+    "summary": "Placeholder for music and audio event logic.",
+    "tags": ["music", "event", "audio"],
+    "relatedApi": [],
+    "relatedEnums": [],
+    "relatedBugs": []
+  },
+  {
+    "id": "train-moving-objective",
+    "title": "Train / Moving Objective",
+    "status": "planned",
+    "summary": "Placeholder for train and moving objective logic.",
+    "tags": ["train", "objective", "movement"],
+    "relatedApi": ["GetGolmudTrainLocation", "DistanceBetween"],
+    "relatedEnums": [],
+    "relatedBugs": ["train-movement-static-custom-setup"]
+  },
+  {
+    "id": "template-round-flow",
+    "title": "Custom Round Flow",
+    "status": "planned",
+    "summary": "Placeholder for custom round state and mission flow.",
+    "tags": ["round-flow", "state", "rules"],
+    "relatedApi": [],
+    "relatedEnums": [],
+    "relatedBugs": []
+  }
+]
