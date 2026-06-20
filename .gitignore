@@ -1,0 +1,26 @@
+# Private / raw research files
+00_raw/
+archive/
+screenshots/
+raw_assets/
+private_research/
+community_scripts/
+test_exports/
+old_ai_drafts/
+temporary_notes/
+
+# Local project planning
+project_status_and_roadmap.md
+
+# OS / editor files
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+
+# Temporary files
+*.tmp
+*.bak
+*.old
+*.log
