@@ -6,6 +6,31 @@ This file tracks documentation and data changes for the BF6 Portal community doc
 
 Initial public documentation structure prepared.
 
+## 2026-06-21 - Interactive site MVP
+
+Added:
+
+* GitHub Pages live site link
+* interactive site MVP under `site/`
+* API Reference search and overload grouping
+* normalized search for terms like `soldier class`, `spawn ai`, and `play music`
+* Selection Lists / Enums search
+* Handbook Topics
+* Templates structure
+* Known Bugs / Workarounds structure
+* related links between Topics, API, Enums, Templates, and Known Bugs
+* suggested related links marked as needs review
+* community-editable JSON files under `site/data/`
+* `site/data/README.md`
+* GitHub issue templates for bug reports, template requests, and documentation requests
+
+Notes:
+
+* External resources are not linked yet.
+* BF6 Portal Book is not linked yet.
+* External projects should only be added after review or permission.
+* The site is still an early MVP and not a complete handbook yet.
+
 Added:
 
 * `README.md`
