@@ -1,0 +1,57 @@
+[
+  {
+    "id": "ai",
+    "title": "AI",
+    "status": "planned",
+    "summary": "AI spawning, AI behavior, deploy control, and bot-related event behavior.",
+    "tags": ["ai", "bots", "spawn", "deploy"],
+    "relatedApi": ["SpawnAIFromAISpawner", "EnableAllPlayerDeploy"],
+    "relatedEnums": ["SoldierClassItem"],
+    "relatedTemplates": ["ai-spawn-setup", "deploy-lock-start-control"],
+    "relatedBugs": []
+  },
+  {
+    "id": "objectives",
+    "title": "Objectives",
+    "status": "planned",
+    "summary": "Objective logic, capture zones, distance checks, and mission progress.",
+    "tags": ["objective", "capture", "mission", "distance"],
+    "relatedApi": ["DistanceBetween"],
+    "relatedEnums": [],
+    "relatedTemplates": ["capture-zone-objective", "train-moving-objective"],
+    "relatedBugs": ["train-movement-static-custom-setup"]
+  },
+  {
+    "id": "notifications-ui",
+    "title": "Notifications / UI Messages",
+    "status": "planned",
+    "summary": "Notification messages, UI feedback, and visible debug output.",
+    "tags": ["ui", "notification", "messages", "debug"],
+    "relatedApi": ["DisplayNotificationMessage"],
+    "relatedEnums": [],
+    "relatedTemplates": ["notification-ui-message"],
+    "relatedBugs": []
+  },
+  {
+    "id": "music-audio",
+    "title": "Music / Audio",
+    "status": "planned",
+    "summary": "Music events, audio feedback, and related scripting functions.",
+    "tags": ["music", "audio"],
+    "relatedApi": ["PlayMusic", "LoadMusic"],
+    "relatedEnums": ["MusicEventsItem"],
+    "relatedTemplates": ["music-event"],
+    "relatedBugs": []
+  },
+  {
+    "id": "spatial-godot",
+    "title": "Spatial / Godot",
+    "status": "research",
+    "summary": "Spatial JSON, Godot SDK, map layout, spawn points, ObjId usage, and Portal SDK workflows.",
+    "tags": ["spatial", "godot", "map", "objid", "sdk"],
+    "relatedApi": [],
+    "relatedEnums": [],
+    "relatedTemplates": [],
+    "relatedBugs": []
+  }
+]

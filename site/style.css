@@ -137,6 +137,7 @@ main {
 }
 
 .info-grid article,
+.topic-card,
 .template-card,
 .bug-card,
 .detail-view {
@@ -235,6 +236,12 @@ button.item {
   border-top: 1px solid var(--line);
 }
 
+.suggested-block {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--line);
+}
+
 .detail-view code,
 pre {
   display: block;
@@ -282,6 +289,23 @@ pre {
 .relation-chip:hover,
 .relation-chip:focus {
   border-color: var(--accent);
+  outline: none;
+}
+
+.suggested-chip {
+  padding: 5px 9px;
+  border: 1px dashed var(--danger);
+  border-radius: 999px;
+  background: #0c0f11;
+  color: var(--danger);
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+}
+
+.suggested-chip:hover,
+.suggested-chip:focus {
+  border-style: solid;
   outline: none;
 }
 

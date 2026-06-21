@@ -18,6 +18,7 @@
     <nav class="tabs" aria-label="Main sections">
       <button class="tab is-active" data-tab="home">Home</button>
       <button class="tab" data-tab="handbook">Handbook</button>
+      <button class="tab" data-tab="topics">Handbook Topics</button>
       <button class="tab" data-tab="api">API Reference</button>
       <button class="tab" data-tab="enums">Selection Lists / Enums</button>
       <button class="tab" data-tab="templates">Templates</button>
@@ -51,6 +52,16 @@
       <section class="panel" id="handbook">
         <h2>Handbook</h2>
         <p class="muted">Concept pages will be linked here later.</p>
+      </section>
+
+      <section class="panel" id="topics">
+        <h2>Handbook Topics</h2>
+        <div class="content-detail-layout">
+          <div class="card-grid" id="topicList"></div>
+          <article class="detail-view" id="topicDetail">
+            <p class="muted">Select a handbook topic.</p>
+          </article>
+        </div>
       </section>
 
       <section class="panel" id="api">

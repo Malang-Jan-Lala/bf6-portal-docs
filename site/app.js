@@ -2,10 +2,12 @@ const state = {
   apiItems: [],
   apiGroups: [],
   enumItems: [],
+  topics: [],
   templates: [],
   bugs: [],
   selectedApiId: null,
   selectedEnumId: null,
+  selectedTopicId: null,
   selectedTemplateId: null,
   selectedBugId: null,
 };
@@ -13,6 +15,7 @@ const state = {
 const dataFiles = {
   api: "data/bf6_mod_api_functions.json",
   enums: "data/bf6_selection_list_enum_map.json",
+  topics: "data/topics.json",
   templates: "data/templates.json",
   bugs: "data/known_bugs.json",
 };
@@ -52,6 +55,7 @@ async function loadData() {
   const results = await Promise.allSettled([
     fetchJson(dataFiles.api),
     fetchJson(dataFiles.enums),
+    fetchJson(dataFiles.topics),
     fetchJson(dataFiles.templates),
     fetchJson(dataFiles.bugs),
   ]);
@@ -72,20 +76,29 @@ async function loadData() {
   }
 
   if (results[2].status === "fulfilled") {
-    state.templates = normalizeTemplates(results[2].value);
-    renderTemplates({ selectFirst: true });
+    state.topics = normalizeTopics(results[2].value);
+    renderTopics({ selectFirst: true });
   } else {
-    renderDataError("templateList", "Could not load templates.json", results[2].reason);
-    renderTemplateMessage("Could not load templates.json");
+    renderDataError("topicList", "Could not load topics.json", results[2].reason);
+    renderTopicMessage("Could not load topics.json");
   }
 
   if (results[3].status === "fulfilled") {
-    state.bugs = normalizeKnownBugs(results[3].value);
+    state.templates = normalizeTemplates(results[3].value);
+    renderTemplates({ selectFirst: true });
+  } else {
+    renderDataError("templateList", "Could not load templates.json", results[3].reason);
+    renderTemplateMessage("Could not load templates.json");
+  }
+
+  if (results[4].status === "fulfilled") {
+    state.bugs = normalizeKnownBugs(results[4].value);
     renderBugs({ selectFirst: true });
   } else {
-    renderDataError("bugList", "Could not load known_bugs.json", results[3].reason);
+    renderDataError("bugList", "Could not load known_bugs.json", results[4].reason);
     renderBugMessage("Could not load known_bugs.json");
   }
+
 }
 
 async function fetchJson(path) {
@@ -127,8 +140,11 @@ function groupApiItems(items) {
         categories: [],
         tags: [],
         nameText: "",
+        nameCompactText: "",
         detailText: "",
+        detailCompactText: "",
         descriptionText: "",
+        descriptionCompactText: "",
         searchText: "",
       });
     }
@@ -140,13 +156,16 @@ function groupApiItems(items) {
     group.categories = unique(group.items.map((item) => item.category));
     group.tags = unique(group.items.flatMap((item) => item.tags)).slice(0, 6);
     group.nameText = group.name.toLowerCase();
+    group.nameCompactText = normalizeSearchCompact(group.name);
     group.detailText = group.items.map((item) => [
       item.signature,
       item.parameters,
       item.category,
       item.returnType,
     ].join(" ")).join(" ").toLowerCase();
+    group.detailCompactText = normalizeSearchCompact(group.detailText);
     group.descriptionText = group.items.map((item) => item.comment).join(" ").toLowerCase();
+    group.descriptionCompactText = normalizeSearchCompact(group.descriptionText);
     group.searchText = `${group.nameText} ${group.detailText} ${group.descriptionText}`;
     return group;
   });
@@ -168,9 +187,32 @@ function normalizeEnumItems(raw) {
       sourceUrl: item.source_url || "",
       warnings: Array.isArray(item.warnings) ? item.warnings : [],
       tags,
+      titleText: String(key).toLowerCase(),
+      titleCompactText: normalizeSearchCompact(key),
+      enumText: String(item.enum_name || item.output_type_inferred || "").toLowerCase(),
+      enumCompactText: normalizeSearchCompact(item.enum_name || item.output_type_inferred || ""),
+      valueText: allowedValues.join(" ").toLowerCase(),
+      valueCompactText: normalizeSearchCompact(allowedValues.join(" ")),
+      summaryText: String(item.summary || "").toLowerCase(),
+      summaryCompactText: normalizeSearchCompact(item.summary || ""),
       raw: item,
     };
   });
+}
+
+function normalizeTopics(raw) {
+  const list = Array.isArray(raw) ? raw : [];
+  return list.map((item) => ({
+    id: item.id || "",
+    title: item.title || "Untitled topic",
+    status: item.status || "unknown",
+    summary: item.summary || "",
+    tags: Array.isArray(item.tags) ? item.tags : [],
+    relatedApi: Array.isArray(item.relatedApi) ? item.relatedApi : [],
+    relatedEnums: Array.isArray(item.relatedEnums) ? item.relatedEnums : [],
+    relatedTemplates: Array.isArray(item.relatedTemplates) ? item.relatedTemplates : [],
+    relatedBugs: Array.isArray(item.relatedBugs) ? item.relatedBugs : [],
+  }));
 }
 
 function normalizeTemplates(raw) {
@@ -208,7 +250,7 @@ function normalizeKnownBugs(raw) {
 
 function renderApiList(options = {}) {
   const list = document.getElementById("apiList");
-  const query = document.getElementById("apiSearch").value.trim().toLowerCase();
+  const query = buildSearchQuery(document.getElementById("apiSearch").value);
   const filtered = getFilteredApiGroups(query);
   document.getElementById("apiCount").textContent = `${filtered.length} of ${state.apiGroups.length} functions`;
   list.innerHTML = "";
@@ -315,7 +357,7 @@ function renderApiMessage(message) {
 }
 
 function getFilteredApiGroups(query) {
-  if (!query) {
+  if (!query.text) {
     return state.apiGroups;
   }
 
@@ -327,10 +369,17 @@ function getFilteredApiGroups(query) {
 }
 
 function getApiSearchRank(group, query) {
-  if (group.nameText === query) return 1;
-  if (group.nameText.includes(query)) return 2;
-  if (group.detailText.includes(query)) return 3;
-  if (group.descriptionText.includes(query)) return 4;
+  if (getSearchMatchWeight(group.nameText, group.nameCompactText, query, true) >= 0) return 1;
+
+  const nameWeight = getSearchMatchWeight(group.nameText, group.nameCompactText, query);
+  if (nameWeight >= 0) return 2 + nameWeight;
+
+  const detailWeight = getSearchMatchWeight(group.detailText, group.detailCompactText, query);
+  if (detailWeight >= 0) return 3 + detailWeight;
+
+  const descriptionWeight = getSearchMatchWeight(group.descriptionText, group.descriptionCompactText, query);
+  if (descriptionWeight >= 0) return 4 + descriptionWeight;
+
   return 99;
 }
 
@@ -352,11 +401,8 @@ function renderApiVariantCard(item, number) {
 
 function renderEnumList(options = {}) {
   const list = document.getElementById("enumList");
-  const query = document.getElementById("enumSearch").value.trim().toLowerCase();
-  const filtered = state.enumItems.filter((item) => {
-    const values = item.allowedValues.join(" ").toLowerCase();
-    return item.title.toLowerCase().includes(query) || item.enumName.toLowerCase().includes(query) || values.includes(query);
-  });
+  const query = buildSearchQuery(document.getElementById("enumSearch").value);
+  const filtered = getFilteredEnumItems(query);
   document.getElementById("enumCount").textContent = `${filtered.length} of ${state.enumItems.length} selection lists`;
   list.innerHTML = "";
 
@@ -379,6 +425,40 @@ function renderEnumList(options = {}) {
     button.addEventListener("click", () => selectEnum(item.id));
     list.appendChild(button);
   });
+}
+
+function getFilteredEnumItems(query) {
+  if (!query.text) {
+    return state.enumItems;
+  }
+
+  return state.enumItems
+    .map((item) => ({ item, rank: getEnumSearchRank(item, query) }))
+    .filter((entry) => entry.rank < 99)
+    .sort((a, b) => a.rank - b.rank || a.item.title.localeCompare(b.item.title))
+    .map((entry) => entry.item);
+}
+
+function getEnumSearchRank(item, query) {
+  const exactNameWeight = Math.min(
+    positiveWeight(getSearchMatchWeight(item.titleText, item.titleCompactText, query, true)),
+    positiveWeight(getSearchMatchWeight(item.enumText, item.enumCompactText, query, true)),
+  );
+  if (exactNameWeight < 99) return 1;
+
+  const nameWeight = Math.min(
+    positiveWeight(getSearchMatchWeight(item.titleText, item.titleCompactText, query)),
+    positiveWeight(getSearchMatchWeight(item.enumText, item.enumCompactText, query)),
+  );
+  if (nameWeight < 99) return 2 + nameWeight;
+
+  const valueWeight = getSearchMatchWeight(item.valueText, item.valueCompactText, query);
+  if (valueWeight >= 0) return 3 + valueWeight;
+
+  const summaryWeight = getSearchMatchWeight(item.summaryText, item.summaryCompactText, query);
+  if (summaryWeight >= 0) return 4 + summaryWeight;
+
+  return 99;
 }
 
 function selectEnum(id) {
@@ -411,6 +491,31 @@ function renderEnumDetail(item) {
 
 function renderEnumMessage(message) {
   document.getElementById("enumDetail").innerHTML = `<p class="muted">${escapeHtml(message)}</p>`;
+}
+
+function renderTopics(options = {}) {
+  if (!state.topics.length) {
+    document.getElementById("topicList").innerHTML = `<p class="muted">No handbook topics found.</p>`;
+    renderTopicMessage("No handbook topic selected");
+    return;
+  }
+
+  if (options.selectFirst || !state.topics.some((item) => item.id === state.selectedTopicId)) {
+    state.selectedTopicId = state.topics[0].id;
+    renderTopicDetail(state.topics[0]);
+  }
+
+  document.getElementById("topicList").innerHTML = state.topics.map((item) => `
+    <article class="topic-card click-card${item.id === state.selectedTopicId ? " is-active" : ""}" data-id="${escapeHtml(item.id)}" role="button" tabindex="0">
+      <h3>${escapeHtml(item.title)}</h3>
+      <p><strong>Status:</strong> ${escapeHtml(item.status)}</p>
+      <p>${escapeHtml(item.summary || "No summary available.")}</p>
+      ${renderTags(item.tags)}
+      <p class="muted">${escapeHtml(renderTopicRelatedSummary(item))}</p>
+    </article>
+  `).join("");
+
+  bindTopicCards();
 }
 
 function renderTemplates(options = {}) {
@@ -471,6 +576,18 @@ function renderBugs(options = {}) {
   bindBugCards();
 }
 
+function bindTopicCards() {
+  document.querySelectorAll("#topicList .click-card").forEach((card) => {
+    card.addEventListener("click", () => selectTopic(card.dataset.id));
+    card.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        selectTopic(card.dataset.id);
+      }
+    });
+  });
+}
+
 function bindTemplateCards() {
   document.querySelectorAll("#templateList .click-card").forEach((card) => {
     card.addEventListener("click", () => selectTemplate(card.dataset.id));
@@ -495,6 +612,14 @@ function bindBugCards() {
   });
 }
 
+function selectTopic(id) {
+  const item = state.topics.find((entry) => entry.id === id);
+  if (!item) return;
+  state.selectedTopicId = id;
+  renderTopicDetail(item);
+  renderTopics();
+}
+
 function selectTemplate(id) {
   const item = state.templates.find((entry) => entry.id === id);
   if (!item) return;
@@ -509,6 +634,29 @@ function selectBug(id) {
   state.selectedBugId = id;
   renderBugDetail(item);
   renderBugs();
+}
+
+function renderTopicDetail(item) {
+  document.getElementById("topicDetail").innerHTML = `
+    <h3>${escapeHtml(item.title)}</h3>
+    <div class="meta">
+      <div><strong>Status:</strong> ${escapeHtml(item.status)}</div>
+    </div>
+    <p>${escapeHtml(item.summary || "No summary available.")}</p>
+    <h3>Tags</h3>
+    ${renderTags(item.tags)}
+    <h3>Related API</h3>
+    ${renderRelationChips("api", item.relatedApi)}
+    <h3>Related Enums</h3>
+    ${renderRelationChips("enum", item.relatedEnums)}
+    <h3>Related Templates</h3>
+    ${renderRelationChips("template", item.relatedTemplates)}
+    <h3>Related Bugs</h3>
+    ${renderRelationChips("bug", item.relatedBugs)}
+    ${renderSuggestedSection("Suggested Templates", "template", getSuggestedRelatedItems(item, state.templates, item.relatedTemplates))}
+    ${renderSuggestedSection("Suggested Known Bugs", "bug", getSuggestedRelatedItems(item, state.bugs, item.relatedBugs))}
+  `;
+  bindRelationChips();
 }
 
 function renderTemplateDetail(item) {
@@ -526,6 +674,8 @@ function renderTemplateDetail(item) {
     ${renderRelationChips("enum", item.relatedEnums)}
     <h3>Related Bugs</h3>
     ${renderRelationChips("bug", item.relatedBugs)}
+    ${renderSuggestedSection("Suggested Topics", "topic", getSuggestedRelatedItems(item, state.topics, []))}
+    ${renderSuggestedSection("Suggested Known Bugs", "bug", getSuggestedRelatedItems(item, state.bugs, item.relatedBugs))}
   `;
   bindRelationChips();
 }
@@ -549,8 +699,14 @@ function renderBugDetail(item) {
     ${renderRelationChips("api", item.relatedApi)}
     <h3>Related Templates</h3>
     ${renderRelationChips("template", item.relatedTemplates)}
+    ${renderSuggestedSection("Suggested Topics", "topic", getSuggestedRelatedItems(item, state.topics, []))}
+    ${renderSuggestedSection("Suggested Templates", "template", getSuggestedRelatedItems(item, state.templates, item.relatedTemplates))}
   `;
   bindRelationChips();
+}
+
+function renderTopicMessage(message) {
+  document.getElementById("topicDetail").innerHTML = `<p class="muted">${escapeHtml(message)}</p>`;
 }
 
 function renderTemplateMessage(message) {
@@ -573,8 +729,27 @@ function renderRelationChips(kind, values) {
   `;
 }
 
+function renderSuggestedSection(title, kind, items) {
+  if (!items.length) {
+    return "";
+  }
+
+  return `
+    <div class="suggested-block">
+      <h3>${escapeHtml(title)}</h3>
+      <p class="muted">Suggested related (needs review)</p>
+      <div class="chip-row">
+        ${items.map((item) => `<button class="suggested-chip" type="button" data-kind="${escapeHtml(kind)}" data-id="${escapeHtml(item.id)}">${escapeHtml(item.title)}</button>`).join("")}
+      </div>
+    </div>
+  `;
+}
+
 function bindRelationChips() {
   document.querySelectorAll(".relation-chip").forEach((chip) => {
+    chip.addEventListener("click", () => handleRelationClick(chip.dataset.kind, chip.dataset.id));
+  });
+  document.querySelectorAll(".suggested-chip").forEach((chip) => {
     chip.addEventListener("click", () => handleRelationClick(chip.dataset.kind, chip.dataset.id));
   });
 }
@@ -600,6 +775,14 @@ function handleRelationClick(kind, id) {
     }
   }
 
+  if (kind === "topic") {
+    const item = findByIdTitleOrSlug(state.topics, id);
+    if (item) {
+      activateTab("topics");
+      selectTopic(item.id);
+    }
+  }
+
   if (kind === "bug") {
     const item = findByIdTitleOrSlug(state.bugs, id);
     if (item) {
@@ -607,6 +790,27 @@ function handleRelationClick(kind, id) {
       selectBug(item.id);
     }
   }
+}
+
+function getSuggestedRelatedItems(source, candidates, manualLinks) {
+  const manualIds = new Set(compact(manualLinks).map((value) => String(value).toLowerCase()));
+  const sourceTags = new Set((source.tags || []).map((tag) => String(tag).toLowerCase()));
+
+  if (!sourceTags.size) {
+    return [];
+  }
+
+  return candidates
+    .filter((candidate) => candidate.id !== source.id)
+    .filter((candidate) => !manualIds.has(String(candidate.id).toLowerCase()) && !manualIds.has(slug(candidate.title || "")))
+    .map((candidate) => ({
+      item: candidate,
+      sharedTags: (candidate.tags || []).filter((tag) => sourceTags.has(String(tag).toLowerCase())).length,
+    }))
+    .filter((entry) => entry.sharedTags > 0)
+    .sort((a, b) => b.sharedTags - a.sharedTags || a.item.title.localeCompare(b.item.title))
+    .slice(0, 5)
+    .map((entry) => entry.item);
 }
 
 function findByIdTitleOrSlug(items, value) {
@@ -627,7 +831,7 @@ function showLoadError(error) {
 
 function renderDataError(containerId, title, error) {
   const message = error && error.message ? error.message : String(error || "Unknown error");
-  const cardClass = containerId === "templateList" ? "template-card" : "bug-card";
+  const cardClass = containerId === "topicList" ? "topic-card" : containerId === "templateList" ? "template-card" : "bug-card";
   document.getElementById(containerId).innerHTML = `
     <article class="${cardClass}">
       <h3>${escapeHtml(title)}</h3>
@@ -641,6 +845,15 @@ function renderRelatedSummary(relatedApi, relatedEnums, relatedBugs) {
     `related API: ${relatedApi.length}`,
     `enums: ${relatedEnums.length}`,
     `known bugs: ${relatedBugs.length}`,
+  ].join(" | ");
+}
+
+function renderTopicRelatedSummary(item) {
+  return [
+    `related API: ${item.relatedApi.length}`,
+    `enums: ${item.relatedEnums.length}`,
+    `templates: ${item.relatedTemplates.length}`,
+    `known bugs: ${item.relatedBugs.length}`,
   ].join(" | ");
 }
 
@@ -661,6 +874,43 @@ function compact(values) {
 
 function unique(values) {
   return Array.from(new Set(compact(values)));
+}
+
+function buildSearchQuery(value) {
+  const text = String(value || "").trim().toLowerCase();
+  const words = splitSearchWords(value);
+  return {
+    text,
+    words,
+    compact: words.join(""),
+  };
+}
+
+function normalizeSearchCompact(value) {
+  return splitSearchWords(value).join("");
+}
+
+function splitSearchWords(value) {
+  return String(value || "")
+    .replace(/([A-Z]+)([A-Z][a-z])/g, "$1 $2")
+    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .filter(Boolean);
+}
+
+function getSearchMatchWeight(text, compactText, query, exact = false) {
+  if (exact) {
+    return text === query.text || compactText === query.compact ? 0 : -1;
+  }
+
+  if (text.includes(query.text) || compactText.includes(query.compact)) return 0;
+  if (query.words.every((word) => text.includes(word))) return 0.1;
+  return -1;
+}
+
+function positiveWeight(value) {
+  return value >= 0 ? value : 99;
 }
 
 function slug(value) {

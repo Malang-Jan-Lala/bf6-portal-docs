@@ -2,6 +2,11 @@
 
 Unofficial BF6 Portal community documentation based on extracted API data, editor observations, and practical testing.
 
+Live site:
+https://malang-jan-lala.github.io/bf6-portal-docs/site/
+
+The live site is an early MVP with API search, Selection List / Enum search, Templates, Known Bugs, Handbook Topics, and related links.
+
 Maintainer: JohnnySack (Malang-jan-Lala)
 
 This project is intended to help Portal creators understand the BF6 Portal Rules Editor, API functions, Selection Lists / Enums, and validated scripting patterns.
@@ -18,6 +23,9 @@ Current focus:
 * validated command behavior
 * update workflow
 * future human-readable handbook structure
+* interactive site MVP
+* Handbook Topics
+* Templates and Known Bugs structure
 
 ## Current scope
 
@@ -70,6 +78,21 @@ examples/
 
 tools/
 └── README.md
+
+site/
+├── index.html
+├── style.css
+├── app.js
+├── README.md
+└── data/
+    ├── bf6_block_api_reference_merged.json
+    ├── bf6_mod_api_functions.json
+    ├── bf6_help_blocks_clean.json
+    ├── bf6_selection_list_enum_map.json
+    ├── topics.json
+    ├── templates.json
+    ├── known_bugs.json
+    └── README.md
 ```
 
 
