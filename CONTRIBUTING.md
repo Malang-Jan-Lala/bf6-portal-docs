@@ -33,6 +33,68 @@ Observed: This was seen in the editor.
 Needs verification: This may be true, but needs more testing.
 ```
 
+## Contributing to the interactive site
+
+The interactive site uses community-editable JSON files:
+
+* `site/data/topics.json`
+* `site/data/templates.json`
+* `site/data/known_bugs.json`
+
+These files are the preferred place for small content contributions.
+
+Do not manually edit generated/extracted reference files:
+
+* `site/data/bf6_mod_api_functions.json`
+* `site/data/bf6_block_api_reference_merged.json`
+* `site/data/bf6_help_blocks_clean.json`
+* `site/data/bf6_selection_list_enum_map.json`
+* `data/bf6_mod_api_functions.json`
+* `data/bf6_block_api_reference_merged.json`
+* `data/bf6_help_blocks_clean.json`
+* `data/bf6_selection_list_enum_map.json`
+
+Confirmed/manual links:
+
+* `relatedApi`
+* `relatedEnums`
+* `relatedTemplates`
+* `relatedBugs`
+
+Suggested links are automatically inferred from tags. Suggested links are not validated and should be treated as needs review.
+
+Contribution rules:
+
+* Keep entries small and focused.
+* Use stable lowercase IDs with hyphens.
+* Add tags for search and suggested links.
+* Mark untested information as `needs-verification`.
+* Do not copy Discord raw text.
+* Do not copy creator scripts without permission.
+* Do not add EA/DICE assets, logos, or copied UI assets.
+* Only add own screenshots/images later when image workflow exists.
+* External resources should only be added after review/permission.
+
+Example of a good contribution:
+
+```json
+{
+  "id": "example-bug-id",
+  "title": "Short bug title",
+  "status": "needs-verification",
+  "summary": "Short original summary of the observed issue.",
+  "affectedBf6Version": "unknown",
+  "affectedPortalSdkVersion": "unknown",
+  "affectedGodotVersion": "unknown",
+  "tags": ["example", "bug"],
+  "relatedApi": ["ExampleApiFunction"],
+  "relatedTemplates": ["example-template"],
+  "workaround": "not confirmed yet",
+  "dateObserved": "unknown",
+  "sourceType": "own-test"
+}
+```
+
 ## Goal
 
 The goal is simple:
